@@ -2,8 +2,8 @@ import errors from './errors';
 
 class Errorist extends Error {
   static create(params) {
-    const Clazz = this;
-    return new Clazz(params);
+    const Class = this;
+    return new Class(params);
   }
 
   /**
