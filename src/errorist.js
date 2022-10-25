@@ -1,6 +1,18 @@
 import errors from './errors';
 
 class Errorist extends Error {
+  constructor({
+    message, code, data, name, causes,
+  } = {}) {
+    super(message);
+
+    this.message = message;
+    this.code = code;
+    this.data = data;
+    this.name = name;
+    this.causes = causes;
+  }
+
   static create(params) {
     const Class = this;
     return new Class(params);
@@ -37,18 +49,6 @@ class Errorist extends Error {
   with(data) {
     this.data = data;
     return this;
-  }
-
-  constructor({
-    message, code, data, name, causes,
-  } = {}) {
-    super(message);
-
-    this.message = message;
-    this.code = code;
-    this.data = data;
-    this.name = name;
-    this.causes = causes;
   }
 }
 
