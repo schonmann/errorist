@@ -106,6 +106,22 @@ describe('Errorist API', () => {
 
         expect(() => sampleError.is()).toThrow(errors.is.emptyParameter);
       });
+
+      test('should throw if parameter is empty', () => {
+        const SomeError = createErrorClass({
+          code: 'some-error-code',
+          message: 'some human readable message',
+        });
+
+        const AnotherError = createErrorClass({
+          code: 'another-error-code',
+          message: 'another human readable message',
+        });
+
+        const anotherError = new AnotherError({ causes: [new SomeError()] });
+
+        expect(anotherError.is(SomeError)).toBeTruthy();
+      });
     });
 
     describe('with()', () => {

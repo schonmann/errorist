@@ -22,7 +22,7 @@ class Errorist extends Error {
     for (let i = 0; i < causes.length; i += 1) {
       const cause = causes[i];
 
-      if (cause instanceof errorClass) {
+      if (cause instanceof errorClass || cause === errorClass) {
         return cause;
       }
       if (cause instanceof Errorist) {
@@ -32,7 +32,7 @@ class Errorist extends Error {
         return this.searchCause(cause.errors, errorClass);
       }
     }
-    return false;
+    return null;
   }
 
   searchCause(errorClass) {
@@ -43,7 +43,7 @@ class Errorist extends Error {
     if (!errorClass) {
       throw errors.is.emptyParameter;
     }
-    return this instanceof errorClass || this.isCausedBy(this.causes, errorClass);
+    return this instanceof errorClass || this.searchCause(errorClass);
   }
 
   with(data) {
