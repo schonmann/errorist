@@ -1,5 +1,5 @@
-# errorist
-A JavaScript library that provides an error implementation with context ✨🕵️
+# errorist ![Test Status](https://github.com/schonmann/errorist/actions/workflows/node.js.yml/badge.svg)
+A JavaScript library that provides an error implementation with context ✨🕵️ 
 
 ## Purpose
 
@@ -23,9 +23,9 @@ npm install --save errorist
 
 ## Basic Usage
 
-Consist on creating error types with the `create` function, which will dynamically create subclasses of `ErroristError` for each of your custom errors.
+Consist on creating error types with the `create` function, which will dynamically create subclasses of `Errorist` for each of your custom errors.
 
-An `ErroristError` instance can be defined with the following parameters:
+An `Errorist` instance can be defined with the following parameters:
 
 * `code` (String): the error code on your application.
 * `message` (String): a human readable message.
