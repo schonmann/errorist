@@ -6,13 +6,31 @@ class Errorist extends Error {
     return new Clazz(params);
   }
 
-  isCausedBy(clazz) {
-    return this.causes.find((cause) => {
-      if (cause instanceof clazz) {
+  /**
+   * Perform a Depth-First Search (DFS) to find the first matching cause in the error tree.
+   * @param {Array<Error>} cause
+   * @param {Object} errorClass
+   * @returns
+   */
+  static searchCause(causes, errorClass) {
+    for (let i = 0; i < causes.length; i += 1) {
+      const cause = causes[i];
+
+      if (cause instanceof errorClass) {
         return cause;
       }
-      return cause instanceof Errorist && cause.isCausedBy(clazz);
-    });
+      if (cause instanceof Errorist) {
+        return cause.searchCause(errorClass);
+      }
+      if (cause instanceof AggregateError) {
+        return this.searchCause(cause.errors, errorClass);
+      }
+    }
+    return false;
+  }
+
+  searchCause(errorClass) {
+    return Errorist.searchCause(this.causes, errorClass);
   }
 
   /**
@@ -26,7 +44,7 @@ class Errorist extends Error {
     if (!errorClass) {
       throw errors.is.emptyParameter;
     }
-    return (this instanceof errorClass && this) || this.isCausedBy(errorClass);
+    return this instanceof errorClass || this.isCausedBy(this.causes, errorClass);
   }
 
   /**
@@ -40,15 +58,15 @@ class Errorist extends Error {
   }
 
   constructor({
-    causes, code, message, name, data, cause,
+    message, code, data, name, causes,
   } = {}) {
-    super(message, { cause });
+    super(message);
 
-    this.causes = causes;
-    this.code = code;
     this.message = message;
+    this.code = code;
     this.data = data;
     this.name = name;
+    this.causes = causes;
   }
 }
 

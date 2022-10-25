@@ -1,9 +1,5 @@
-import ErroristError from './errorist';
+import Errorist from './errorist';
 import errors from './errors';
-
-Error.stackTraceLimit = Infinity;
-
-export { ErroristError };
 
 const getErrorCauses = (error) => {
   if (error instanceof AggregateError) {
@@ -19,41 +15,41 @@ const wrap = (error) => {
   if (!error) {
     throw errors.wrap.errorIsFalsey;
   }
-  if (error instanceof ErroristError) {
+  if (error instanceof Errorist) {
     return error;
   }
-  return new ErroristError({
+  return new Errorist({
+    ...error,
     causes: getErrorCauses(error),
-    message: error.message,
-    code: error.code,
   });
 };
 
 /**
  *
  * @param {Object} params
- * @param {String} [params.message] the error message.
- * @param {String} [params.code] an unique code for the error.
  * @returns {CustomErroristError}
  */
 const createErrorClass = ({
-  message, code, name,
-}) => class CustomErroristError extends ErroristError {
-  constructor(params) {
-    super({
-      message,
-      code,
-      name,
-      ...params,
-    });
-
-    Error.captureStackTrace(this, CustomErroristError);
+  parent: Parent = Errorist,
+  defaultParams,
+}) => {
+  const isErrorist = Parent.prototype instanceof Errorist || Parent === Errorist;
+  if (!isErrorist) {
+    throw errors.createErrorClass.parentIsNotAnErroristSubclass;
   }
+
+  return class CustomErroristError extends Parent {
+    constructor(params) {
+      super({
+        ...defaultParams,
+        ...params,
+      });
+
+      Error.captureStackTrace(this, CustomErroristError);
+    }
+  };
 };
 
-export default {
-  errors,
+export { errors, createErrorClass, wrap };
 
-  createErrorClass,
-  wrap,
-};
+export default Errorist;
