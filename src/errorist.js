@@ -1,4 +1,4 @@
-import errors from './errors';
+import { WrapEmptyParameterError } from './errors';
 
 class Errorist extends Error {
   constructor({
@@ -41,7 +41,7 @@ class Errorist extends Error {
 
   is(errorClass) {
     if (!errorClass) {
-      throw errors.is.emptyParameter;
+      throw new WrapEmptyParameterError();
     }
     return this instanceof errorClass || this.searchCause(errorClass);
   }

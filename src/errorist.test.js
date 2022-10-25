@@ -1,4 +1,8 @@
 import Errorist, { errorist } from '.';
+import {
+  ParentIsNotAnErroristSubclassError,
+  WrapFalseyValueError,
+} from './errors';
 
 describe('errorist', () => {
   describe('createErrorClass()', () => {
@@ -26,9 +30,7 @@ describe('errorist', () => {
             message: 'some human readable message',
           },
         });
-      }).toThrow(
-        errorist.errors.createErrorClass.parentIsNotAnErroristSubclass,
-      );
+      }).toThrow(ParentIsNotAnErroristSubclassError);
     });
   });
 
@@ -42,7 +44,7 @@ describe('errorist', () => {
     });
 
     test('should throw an error when `error` parameter is a falsey value', () => {
-      expect(() => errorist.wrap()).toThrow(errorist.errors.wrap.errorIsFalsey);
+      expect(() => errorist.wrap()).toThrow(WrapFalseyValueError);
     });
   });
 

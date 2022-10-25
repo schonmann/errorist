@@ -1,3 +1,4 @@
+import { WrapEmptyParameterError } from './errors';
 import Errorist, { errorist } from './index';
 
 describe('Errorist', () => {
@@ -58,7 +59,7 @@ describe('Errorist', () => {
 
       const sampleError = new SampleError();
 
-      expect(() => sampleError.is()).toThrow(errorist.errors.is.emptyParameter);
+      expect(() => sampleError.is()).toThrow(WrapEmptyParameterError);
     });
 
     test('should throw if parameter is empty', () => {

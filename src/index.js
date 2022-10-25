@@ -1,5 +1,5 @@
 import Errorist from './errorist';
-import errors from './errors';
+import errors, { ParentIsNotAnErroristSubclassError, WrapFalseyValueError } from './errors';
 
 const getErrorCauses = (error) => {
   if (error instanceof AggregateError) {
@@ -13,7 +13,7 @@ const getErrorCauses = (error) => {
 
 const wrap = (error) => {
   if (!error) {
-    throw errors.wrap.errorIsFalsey;
+    throw new WrapFalseyValueError();
   }
   if (error instanceof Errorist) {
     return error;
@@ -27,7 +27,7 @@ const wrap = (error) => {
 const createErrorClass = ({ parent: Parent = Errorist, defaultParams }) => {
   const isErroristOrSubclass = Parent.prototype instanceof Errorist || Parent === Errorist;
   if (!isErroristOrSubclass) {
-    throw errors.createErrorClass.parentIsNotAnErroristSubclass;
+    throw new ParentIsNotAnErroristSubclassError();
   }
 
   return class CustomErroristError extends Parent {
