@@ -22,7 +22,7 @@ class Errorist extends Error {
     for (let i = 0; i < causes.length; i += 1) {
       const cause = causes[i];
 
-      if (cause instanceof errorClass || cause === errorClass) {
+      if (cause instanceof errorClass) {
         return cause;
       }
       if (cause instanceof Errorist) {

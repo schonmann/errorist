@@ -24,17 +24,9 @@ const wrap = (error) => {
   });
 };
 
-/**
- *
- * @param {Object} params
- * @returns {CustomErroristError}
- */
-const createErrorClass = ({
-  parent: Parent = Errorist,
-  defaultParams,
-}) => {
-  const isErrorist = Parent.prototype instanceof Errorist || Parent === Errorist;
-  if (!isErrorist) {
+const createErrorClass = ({ parent: Parent = Errorist, defaultParams }) => {
+  const isErroristOrSubclass = Parent.prototype instanceof Errorist || Parent === Errorist;
+  if (!isErroristOrSubclass) {
     throw errors.createErrorClass.parentIsNotAnErroristSubclass;
   }
 
@@ -50,6 +42,27 @@ const createErrorClass = ({
   };
 };
 
-export { errors, createErrorClass, wrap };
+const normalizePromiseResult = async (promiseResult) => promiseResult
+  .then((result) => Promise.resolve([result, null]))
+  .catch((error) => Promise.resolve([null, wrap(error)]));
+
+const tryHelper = (fn) => {
+  try {
+    const result = fn();
+    if (result instanceof Promise) {
+      return normalizePromiseResult(result);
+    }
+    return [result, null];
+  } catch (error) {
+    return [null, wrap(error)];
+  }
+};
+
+export const errorist = {
+  errors,
+  createErrorClass,
+  wrap,
+  try: tryHelper,
+};
 
 export default Errorist;
