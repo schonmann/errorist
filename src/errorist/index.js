@@ -1,4 +1,5 @@
-import { WrapEmptyParameterError } from './errors';
+/* eslint-disable max-classes-per-file */
+import { WrapEmptyParameterError } from '../errors';
 
 class Errorist extends Error {
   constructor({
@@ -10,12 +11,7 @@ class Errorist extends Error {
     this.code = code;
     this.data = data;
     this.name = name;
-    this.causes = causes;
-  }
-
-  static create(params) {
-    const Class = this;
-    return new Class(params);
+    this.withCauses(causes);
   }
 
   static searchCause(causes, errorClass) {
@@ -35,6 +31,19 @@ class Errorist extends Error {
     return null;
   }
 
+  static extend({ defaultParams }) {
+    return class CustomErroristError extends this {
+      constructor(params) {
+        super({
+          ...defaultParams,
+          ...params,
+        });
+
+        Error.captureStackTrace(this, CustomErroristError);
+      }
+    };
+  }
+
   searchCause(errorClass) {
     return Errorist.searchCause(this.causes, errorClass);
   }
@@ -48,6 +57,11 @@ class Errorist extends Error {
 
   with(data) {
     this.data = data;
+    return this;
+  }
+
+  withCauses(causes) {
+    this.causes = Array.isArray(causes) ? causes : [causes];
     return this;
   }
 }
