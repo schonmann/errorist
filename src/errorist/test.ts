@@ -1,12 +1,15 @@
 import Errorist from '.';
-import { WrapEmptyParameterError } from '../errors';
+import { EmptySearchError, WrapFalseyValueError } from '../errors';
+import { ErroristParams } from '../types';
 
 describe('Errorist', () => {
   describe('constructor()', () => {
     test('should create `SampleError`, extending both `Errorist` and `Error`', () => {
       const SampleError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const sampleError = new SampleError();
@@ -16,10 +19,12 @@ describe('Errorist', () => {
       expect(sampleError).toBeInstanceOf(SampleError);
     });
 
-    test('should be `Error`, `Errorist`, `SampleError`', () => {
+    test('should be `Error`, `Errorist`, `SampleError` and include the specified `data`', () => {
       const SampleError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const data = {
@@ -28,9 +33,9 @@ describe('Errorist', () => {
       };
 
       try {
-        throw new SampleError({ data });
-      } catch (e) {
-        expect(e.data).toBe(data);
+        throw SampleError.create({ data } as ErroristParams);
+      } catch (e: any) {
+        expect(e.data).toStrictEqual(data);
       }
     });
   });
@@ -38,8 +43,10 @@ describe('Errorist', () => {
   describe('extend()', () => {
     test('should create `SampleError`, extending both `Errorist` and `Error`', () => {
       const SampleError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const sampleError = new SampleError();
@@ -47,6 +54,20 @@ describe('Errorist', () => {
       expect(sampleError).toBeInstanceOf(SampleError);
       expect(sampleError).toBeInstanceOf(Errorist);
       expect(sampleError).toBeInstanceOf(Error);
+    });
+  });
+
+  describe('wrap()', () => {
+    test('should wrap the `Error` instance to an `Errorist`', () => {
+      const someNativeError = new Error('im a native error');
+
+      const wrappedError = Errorist.wrap(someNativeError);
+
+      expect(wrappedError).toBeInstanceOf(Errorist);
+    });
+
+    test('should throw an error when `error` parameter is a falsey value', () => {
+      expect(() => Errorist.wrap(null)).toThrow(WrapFalseyValueError);
     });
   });
 
@@ -69,27 +90,36 @@ describe('Errorist', () => {
 
     test('should throw if parameter is empty', () => {
       const SampleError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const sampleError = new SampleError();
 
-      expect(() => sampleError.is()).toThrow(WrapEmptyParameterError);
+      expect(() => sampleError.is(null)).toThrow(EmptySearchError);
     });
 
     test('should throw if parameter is empty', () => {
       const SomeError = Errorist.extend({
-        code: 'some-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          name: 'SomeError',
+          code: 'some-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const AnotherError = Errorist.extend({
-        code: 'another-error-code',
-        message: 'another human readable message',
+        parent: SomeError,
+        defaultParams: {
+          name: 'AnotherError',
+          code: 'another-error-code',
+          message: 'another human readable message',
+        },
       });
 
-      const anotherError = new AnotherError({ causes: [new SomeError()] });
+      const anotherError = new AnotherError().withCauses(new SomeError());
 
       expect(anotherError.is(SomeError)).toBeTruthy();
     });
@@ -98,13 +128,17 @@ describe('Errorist', () => {
   describe('extend() + is()', () => {
     test('should create `FooError` and `BarError` both being neiher instance of each other nor `is` comparisons being truthy', () => {
       const FooError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const BarError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       expect(FooError).not.toBeInstanceOf(BarError);
@@ -118,8 +152,10 @@ describe('Errorist', () => {
   describe('with()', () => {
     test('should include the keys specified in `data` on the error', () => {
       const SampleError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const data = {
@@ -130,14 +166,16 @@ describe('Errorist', () => {
       try {
         throw new SampleError().with(data);
       } catch (e) {
-        expect(e.data).toBe(data);
+        expect(e.data).toStrictEqual(data);
       }
     });
 
     test('subsequent calls should be idempotent', () => {
       const SampleError = Errorist.extend({
-        code: 'sample-error-code',
-        message: 'some human readable message',
+        defaultParams: {
+          code: 'sample-error-code',
+          message: 'some human readable message',
+        },
       });
 
       const data = {
@@ -147,8 +185,8 @@ describe('Errorist', () => {
 
       try {
         throw new SampleError().with(data).with(data);
-      } catch (e) {
-        expect(e.data).toBe(data);
+      } catch (e: any) {
+        expect(e.data).toStrictEqual(data);
       }
     });
   });

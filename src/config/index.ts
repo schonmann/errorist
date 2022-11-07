@@ -1,10 +1,12 @@
-const defaultConfig = {
+import { Config } from '../types';
+
+const defaultConfig : Config = {
   try: {
     errorFirst: false,
   },
 };
 
-const mergeConfigWithDefault = (config = {}) => ({
+const mergeConfigWithDefault = (config : Config) => ({
   try: {
     errorFirst: config?.try?.errorFirst ?? defaultConfig.try.errorFirst,
   },
