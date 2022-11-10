@@ -24,11 +24,11 @@ const getNativeErrorCauses = (error?: Error | null): Error[] => {
 };
 
 class Errorist extends Error {
-  code: string = '';
+  public code: string = '';
 
-  data: Optional<object> = {};
+  public data: Optional<object> = {};
 
-  causes: Error[] = [];
+  public causes: Error[] = [];
 
   constructor(message?: string) {
     super(message);
