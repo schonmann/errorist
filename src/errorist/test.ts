@@ -166,7 +166,7 @@ describe('Errorist', () => {
       try {
         throw new SampleError().with(data);
       } catch (e) {
-        expect(e.data).toStrictEqual(data);
+        expect((e as Errorist).data).toStrictEqual(data);
       }
     });
 
