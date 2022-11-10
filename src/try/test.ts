@@ -2,7 +2,6 @@ import createTryWrapperMethod from '.';
 
 describe('try()', () => {
   const tryFn = createTryWrapperMethod({
-    wrap: (err : Error) => err,
     config: {
       try: {
         errorFirst: false,
@@ -64,7 +63,6 @@ describe('try()', () => {
 
   test('should swap return values when `errorFirst` is `true` on config', async () => {
     const customTry = createTryWrapperMethod({
-      wrap: (error : Error) => error,
       config: {
         try: {
           errorFirst: true,

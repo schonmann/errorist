@@ -1,16 +1,15 @@
-import { DependencyContainer, WrapFunction } from '../types';
+import Errorist from '../errorist';
+import {
+  DependencyContainer,
+  TryReturnValue,
+} from '../types';
 
-type ErrorWrapper = ReturnType<WrapFunction>;
-type ResultOrErrorWrapper<R> = R | ErrorWrapper | null;
-
-type TryReturnValue<R> = [ResultOrErrorWrapper<R>, ResultOrErrorWrapper<R>];
-
-const createTryWrapperMethod = ({ wrap, config }: DependencyContainer) => {
+const createTryWrapperMethod = ({ config }: DependencyContainer) => {
   const { errorFirst } = config?.try || {};
 
   const swapAndWrap = <R>(result: Nullable<R>, error: Nullable<Error>): TryReturnValue<R> => (
-    errorFirst ? [error ? wrap(error) : null, result]
-      : [result, error ? wrap(error) : null]
+    errorFirst ? [error ? Errorist.wrap(error) : null, result]
+      : [result, error ? Errorist.wrap(error) : null]
   );
 
   const tryAsync = async <R>(fn: () => Promise<R>): Promise<TryReturnValue<R>> => {
