@@ -13,7 +13,7 @@ const getNativeErrorCauses = (error?: Error | null): Error[] => {
   return [];
 };
 
-export interface ErroristSubclassCreateParams {
+export interface CustomErroristCreateParams {
   data?: object,
   error?: Error
   causes?: Error[] | Error
@@ -21,7 +21,7 @@ export interface ErroristSubclassCreateParams {
 
 export interface ErroristExtendParams {
   parent?: Type<Errorist> | null,
-  defaultParams: ErroristSubclassCreateParams & {
+  defaultParams: CustomErroristCreateParams & {
     name?: string,
     message: string,
     code: string,
@@ -42,27 +42,8 @@ class Errorist extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 
-  static searchCauses(causes: Error[], errorSearch: ErrorSearch): Error | null {
-    for (let i = 0; i < causes.length; i += 1) {
-      const cause = causes[i];
-
-      if (typeof errorSearch === 'function' && cause instanceof errorSearch) {
-        return cause;
-      }
-
-      if (cause instanceof Errorist) {
-        return cause.is(errorSearch);
-      }
-
-      if (cause instanceof AggregateError) {
-        return this.searchCauses(cause.errors, errorSearch);
-      }
-    }
-    return null;
-  }
-
   static extend({ defaultParams }: ErroristExtendParams): typeof Errorist {
-    return class ErroristSubclass extends this {
+    return class CustomErrorist extends this {
       constructor(message?: string | undefined) {
         super(defaultParams.message || message);
 
@@ -82,7 +63,7 @@ class Errorist extends Error {
     };
   }
 
-  static create(params?: ErroristSubclassCreateParams): Errorist {
+  static create(params?: CustomErroristCreateParams): Errorist {
     const Clazz = this;
     const instance = new Clazz();
 
@@ -107,8 +88,27 @@ class Errorist extends Error {
     return new Errorist().withError(error);
   }
 
-  searchCauses(errorSearch: ErrorSearch): Error | null {
-    return Errorist.searchCauses(this.causes, errorSearch);
+  static searchCause(errorSearch: ErrorSearch, causes: Error[]): Error | null {
+    for (let i = 0; i < causes.length; i += 1) {
+      const cause = causes[i];
+
+      if (typeof errorSearch === 'function' && cause instanceof errorSearch) {
+        return cause;
+      }
+
+      if (cause instanceof Errorist) {
+        return cause.is(errorSearch);
+      }
+
+      if (cause instanceof AggregateError) {
+        return this.searchCause(errorSearch, cause.errors);
+      }
+    }
+    return null;
+  }
+
+  isCausedBy(errorSearch: ErrorSearch): Error | null {
+    return Errorist.searchCause(errorSearch, this.causes);
   }
 
   is(errorSearch: ErrorSearch): Error | null {
@@ -124,7 +124,7 @@ class Errorist extends Error {
       return this;
     }
 
-    return this.searchCauses(errorSearch);
+    return this.isCausedBy(errorSearch);
   }
 
   with(data?: Optional<object>): this {
