@@ -1,10 +1,9 @@
 import Errorist from '.';
 import { EmptySearchError, WrapFalseyValueError } from '../errors';
-import { ErroristParams } from '../types';
 
 describe('Errorist', () => {
   describe('constructor()', () => {
-    test('should create `SampleError`, extending both `Errorist` and `Error`', () => {
+    it('should create `SampleError`, extending both `Errorist` and `Error`', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
@@ -19,7 +18,7 @@ describe('Errorist', () => {
       expect(sampleError).toBeInstanceOf(SampleError);
     });
 
-    test('should be `Error`, `Errorist`, `SampleError` and include the specified `data`', () => {
+    it('should be `Error`, `Errorist`, `SampleError` and include the specified `data`', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
@@ -33,7 +32,7 @@ describe('Errorist', () => {
       };
 
       try {
-        throw SampleError.create({ data } as ErroristParams);
+        throw SampleError.create({ data });
       } catch (e: any) {
         expect(e.data).toStrictEqual(data);
       }
@@ -41,7 +40,7 @@ describe('Errorist', () => {
   });
 
   describe('extend()', () => {
-    test('should create `SampleError`, extending both `Errorist` and `Error`', () => {
+    it('should create `SampleError`, extending both `Errorist` and `Error`', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
@@ -58,7 +57,7 @@ describe('Errorist', () => {
   });
 
   describe('wrap()', () => {
-    test('should wrap the `Error` instance to an `Errorist`', () => {
+    it('should wrap the `Error` instance to an `Errorist`', () => {
       const someNativeError = new Error('im a native error');
 
       const wrappedError = Errorist.wrap(someNativeError);
@@ -66,13 +65,13 @@ describe('Errorist', () => {
       expect(wrappedError).toBeInstanceOf(Errorist);
     });
 
-    test('should throw an error when `error` parameter is a falsey value', () => {
+    it('should throw an error when `error` parameter is a falsey value', () => {
       expect(() => Errorist.wrap(null)).toThrow(WrapFalseyValueError);
     });
   });
 
   describe('is()', () => {
-    test('should be `Error`, `Errorist`, `SampleError`', () => {
+    it('should be `Error`, `Errorist`, `SampleError`', () => {
       const SampleError = Errorist.extend({
         parent: Errorist,
         defaultParams: {
@@ -88,7 +87,7 @@ describe('Errorist', () => {
       expect(sampleError.is(SampleError)).toBeTruthy();
     });
 
-    test('should throw if parameter is empty', () => {
+    it('should throw if parameter is empty', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
@@ -101,7 +100,7 @@ describe('Errorist', () => {
       expect(() => sampleError.is(null)).toThrow(EmptySearchError);
     });
 
-    test('should throw if parameter is empty', () => {
+    it('should throw if parameter is empty', () => {
       const SomeError = Errorist.extend({
         defaultParams: {
           name: 'SomeError',
@@ -126,7 +125,7 @@ describe('Errorist', () => {
   });
 
   describe('extend() + is()', () => {
-    test('should create `FooError` and `BarError` both being neiher instance of each other nor `is` comparisons being truthy', () => {
+    it('should create `FooError` and `BarError` both being neiher instance of each other nor `is` comparisons being truthy', () => {
       const FooError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
@@ -150,7 +149,7 @@ describe('Errorist', () => {
   });
 
   describe('with()', () => {
-    test('should include the keys specified in `data` on the error', () => {
+    it('should include the keys specified in `data` on the error', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
@@ -170,7 +169,7 @@ describe('Errorist', () => {
       }
     });
 
-    test('subsequent calls should be idempotent', () => {
+    it('subsequent calls should be idempotent', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
           code: 'sample-error-code',
