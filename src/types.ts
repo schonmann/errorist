@@ -1,23 +1,20 @@
+import type Errorist from './errorist';
+
 export interface Config {
   try: {
     errorFirst: boolean,
   };
 }
 
-export type WrapFunction = (err: Error) => any;
-export type ErrorSearch = Class<Error> | string;
+export type ErrorSearch = Type<Error> | string;
 
-export type ErrorWrapper = ReturnType<WrapFunction>;
-export type ResultOrErrorWrapper<R> = R | ErrorWrapper | null;
+export type SwapAndWrapReturnType<R> = [Nullable<Errorist>, Nullable<R>];
 
-export type TryReturnValue<R> = [ResultOrErrorWrapper<R>, ResultOrErrorWrapper<R>];
+export type TryFunction<R> = (...args: any) => R;
 
-export interface DependencyContainer {
-  config: Config,
-}
+export type TryWrapper = <R> (fn : TryFunction<R>) => R extends Promise<infer K>
+  ? Promise<SwapAndWrapReturnType<K>> : SwapAndWrapReturnType<R>;
 
-export interface ErroristParams {
-  data?: object,
-  error?: Error
-  cause?: Error
+export interface ErroristLibrary {
+  try: TryWrapper
 }

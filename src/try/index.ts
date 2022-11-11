@@ -1,43 +1,45 @@
 import Errorist from '../errorist';
 import {
-  DependencyContainer,
-  TryReturnValue,
+  SwapAndWrapReturnType,
+  TryFunction,
+  TryWrapper,
 } from '../types';
 
-const createTryWrapperMethod = ({ config }: DependencyContainer) => {
-  const { errorFirst } = config?.try || {};
+const createTryWrapperMethod = (): TryWrapper => {
+  const prepareResult = <R>(
+    result: Nullable<R>,
+    error: Nullable<Error>,
+  ): SwapAndWrapReturnType<R> => (
+      [error ? Errorist.wrap(error) : null, result]
+    );
 
-  const swapAndWrap = <R>(result: Nullable<R>, error: Nullable<Error>): TryReturnValue<R> => (
-    errorFirst ? [error ? Errorist.wrap(error) : null, result]
-      : [result, error ? Errorist.wrap(error) : null]
-  );
-
-  const tryAsync = async <R>(fn: () => Promise<R>): Promise<TryReturnValue<R>> => {
+  const tryAsync = async <R>(fn: TryFunction<R>):
+  Promise<ReturnType<typeof prepareResult>> => {
     try {
       const result = await fn();
 
-      return swapAndWrap<R>(result, null);
+      return prepareResult<R>(result, null);
     } catch (error) {
-      return swapAndWrap<R>(null, error as Error);
+      return prepareResult<R>(null, error as Errorist);
     }
   };
 
-  const tryWrapper = (fn: SyncFunction): any => {
+  const tryWrapper = <R>(fn: TryFunction<R>) => {
     try {
       const result = fn();
       if (result instanceof Promise) {
         return tryAsync(() => result);
       }
-      return swapAndWrap(result, null);
+      return prepareResult(result, null);
     } catch (error) {
       if (error instanceof Error) {
-        return swapAndWrap(null, error as Error);
+        return prepareResult(null, error);
       }
       throw error;
     }
   };
 
-  return tryWrapper;
+  return tryWrapper as TryWrapper;
 };
 
 export default createTryWrapperMethod;

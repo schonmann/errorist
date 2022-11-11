@@ -148,6 +148,50 @@ describe('Errorist', () => {
     });
   });
 
+  describe('getFullStack()', () => {
+    it('should print the full stack with causes', () => {
+      const SomeError = Errorist.extend({
+        defaultParams: {
+          code: 'some-error-code',
+          message: 'some human readable message',
+        },
+      });
+
+      const AnotherError = Errorist.extend({
+        defaultParams: {
+          name: 'AnotherError',
+          code: 'another-error-code',
+          message: 'another human readable message',
+        },
+      });
+
+      const nestedAnotherError = AnotherError.create({
+        causes: AnotherError.create(),
+      });
+
+      const anotherError = AnotherError.create({
+        causes: nestedAnotherError,
+      });
+
+      const sampleError = SomeError.create({
+        data: {
+          someField: 'some value',
+          someOtherField: 'some other value',
+        },
+        causes: [
+          anotherError,
+          anotherError,
+          anotherError,
+        ],
+      });
+
+      const fullStack = sampleError.getFullStackTrace();
+
+      expect(fullStack).toContain(sampleError.stack);
+      expect(fullStack).toContain(anotherError.stack);
+    });
+  });
+
   describe('with()', () => {
     it('should include the keys specified in `data` on the error', () => {
       const SampleError = Errorist.extend({

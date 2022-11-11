@@ -1,17 +1,7 @@
 // eslint-disable-next-line max-classes-per-file
 import { EmptySearchError, WrapFalseyValueError } from '../errors';
-import {
-  ErroristParams, ErrorSearch,
-} from '../types';
-
-interface ErroristExtendParams {
-  parent?: Class<Errorist> | null,
-  defaultParams: ErroristParams & {
-    name?: string,
-    message: string,
-    code: string,
-  }
-}
+import WithErrorNotAllowedError from '../errors/withErrorNotAllowed';
+import type { ErrorSearch } from '../types';
 
 const getNativeErrorCauses = (error?: Error | null): Error[] => {
   if (error instanceof AggregateError) {
@@ -23,6 +13,21 @@ const getNativeErrorCauses = (error?: Error | null): Error[] => {
   return [];
 };
 
+export interface ErroristSubclassCreateParams {
+  data?: object,
+  error?: Error
+  causes?: Error[] | Error
+}
+
+export interface ErroristExtendParams {
+  parent?: Type<Errorist> | null,
+  defaultParams: ErroristSubclassCreateParams & {
+    name?: string,
+    message: string,
+    code: string,
+  }
+}
+
 class Errorist extends Error {
   public code: string = '';
 
@@ -30,7 +35,7 @@ class Errorist extends Error {
 
   public causes: Error[] = [];
 
-  constructor(message?: string) {
+  public constructor(message?: string) {
     super(message);
 
     Error.captureStackTrace(this, new.target);
@@ -56,8 +61,8 @@ class Errorist extends Error {
     return null;
   }
 
-  static extend({ defaultParams }: ErroristExtendParams) {
-    return class CustomErrorist extends this {
+  static extend({ defaultParams }: ErroristExtendParams): typeof Errorist {
+    return class ErroristSubclass extends this {
       constructor(message?: string | undefined) {
         super(defaultParams.message || message);
 
@@ -69,25 +74,37 @@ class Errorist extends Error {
         Error.captureStackTrace(this, new.target);
         Object.setPrototypeOf(this, new.target.prototype);
       }
+
+      // eslint-disable-next-line class-methods-use-this
+      withError(): this {
+        throw new WithErrorNotAllowedError();
+      }
     };
   }
 
-  static create({ data, cause, error }: ErroristParams): Errorist {
+  static create(params?: ErroristSubclassCreateParams): Errorist {
     const Clazz = this;
     const instance = new Clazz();
 
-    return instance.with(data).withError(error).withCauses(cause);
+    if (!params) {
+      return instance;
+    }
+
+    const { data, causes } = params;
+
+    return instance.with(data).withCauses(
+      ...(Array.isArray(causes) ? causes : [causes]),
+    );
   }
 
   static wrap(error: Error): Errorist {
     if (!error) {
       throw new WrapFalseyValueError();
     }
-    const Clazz = this;
-    if (error instanceof Clazz) {
+    if (error instanceof Errorist) {
       return error;
     }
-    return Clazz.create({ error });
+    return new Errorist().withError(error);
   }
 
   searchCauses(errorSearch: ErrorSearch): Error | null {
@@ -110,6 +127,15 @@ class Errorist extends Error {
     return this.searchCauses(errorSearch);
   }
 
+  with(data?: Optional<object>): this {
+    this.data = {
+      ...this.data,
+      ...(data || {}),
+    };
+
+    return this;
+  }
+
   withError(error?: Error | null): this {
     this.name = error?.name ?? '';
     this.message = error?.message ?? '';
@@ -118,15 +144,6 @@ class Errorist extends Error {
     const causes = getNativeErrorCauses(error);
 
     return this.withCauses(...causes);
-  }
-
-  with(data?: Optional<object>): this {
-    this.data = {
-      ...this.data,
-      ...(data || {}),
-    };
-
-    return this;
   }
 
   withCauses(...causes: Optional<Error>[]): this {
@@ -138,12 +155,18 @@ class Errorist extends Error {
     return this;
   }
 
-  formatCauses(causes: Error[]): string {
-    return causes.map(({ stack }, index) => `#${index + 1}: ${stack}`).join('\t');
-  }
+  getFullStackTrace(depth: number = 1): string {
+    if (this.causes.length === 0) {
+      return this.stack ?? '';
+    }
 
-  getFullStack(): string {
-    const causesStack = this.causes.length > 0 ? `\nCaused by: \n${this.formatCauses(this.causes)}` : '';
+    const causesStack = `\nCaused by: [\n${this.causes.map((cause, index) => {
+      const includeCauseFullStack = cause instanceof Errorist && depth > 0;
+      const stack = includeCauseFullStack ? cause.getFullStackTrace(depth - 1) : cause.stack;
+
+      return `#${index + 1}: ${stack}`;
+    }).join('\n')}\n]`;
+
     return `${this.stack}${causesStack}`;
   }
 }

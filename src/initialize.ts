@@ -1,11 +1,8 @@
-import mergeConfigWithDefault from './config';
 import createTryWrapperMethod from './try';
-import { Config } from './types';
+import { ErroristLibrary } from './types';
 
-const initializeErroristLibrary = (config : Config) => ({
-  try: createTryWrapperMethod({
-    config: mergeConfigWithDefault(config),
-  }),
+const initializeErroristLibrary = () : ErroristLibrary => ({
+  try: createTryWrapperMethod(),
 });
 
 export default initializeErroristLibrary;
