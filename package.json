@@ -1,7 +1,7 @@
 {
   "name": "errorist.js",
   "version": "1.0.1",
-  "description": "A JavaScript library that provides an error implementation with context",
+  "description": "A JavaScript library that provides traceable errors",
   "main": "src/index.js",
   "repository": "git@github.com:schonmann/errorist.git",
   "author": "xuma@xumahub.com",
