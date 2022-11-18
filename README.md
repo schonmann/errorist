@@ -24,8 +24,8 @@ npm install --save errorist
 The library is designed to enforce a better context to an error by:
 * Keeping track of an error root causes and detect them at ease;
 * Forcing the usage of error codes;
-* Encouraging error messages;
-* Patching error with related data;
+* Encouraging succint, precise error messages;
+* Patching errors with related data.
 
 ## Usage
 ### #1: Custom error class definition
@@ -54,7 +54,7 @@ try {
   // ...
 } catch(e) {
   throw SomeCustomError.create({
-    causes: err,
+    causes: e,
     data: {
       foo: "some data",
       bar: "some other data"
