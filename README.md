@@ -5,15 +5,7 @@ A JavaScript library that provides traceable errors ✨🕵️
 > 
 > [— Collins Dictionary](https://www.collinsdictionary.com/dictionary/english/errorist)
 
-[TL;DR: Check use cases!](#use-cases)
-
-## Purpose
-
-The library is designed to be compatible with the standard JavaScript ways, while also enforcing a better context to an error by:
-* Keeping track of an error root causes and detect them at ease;
-* Forcing the usage of error codes;
-* Encouraging error messages;
-* Patching error with related data;
+[TL;DR: check use cases!](#Usage)
 
 ## Install
 The package for `errorist` is available on the public *npm registry*.
@@ -26,90 +18,78 @@ yarn add errorist
 ```
 npm install --save errorist
 ```
-## Use cases
 
-### Out of the box, Golang-style exception handling:
+## Purpose
 
+The library is designed to enforce a better context to an error by:
+* Keeping track of an error root causes and detect them at ease;
+* Forcing the usage of error codes;
+* Encouraging error messages;
+* Patching error with related data;
+
+## Usage
+### #1: Custom error class definition
 
 ```javascript
-const VikingNotFoundError = Errorist.extend({
-    code: 'viking-not-found-error',
-    message: 'viking not found!'
-});
-
-const ValhallaJoiningError = Errorist.extend({
-    code: 'valhalla-error',
-    message: 'cant join valhalla!'
-});
-
-const AlreadyJoinedValhallaError = ValhallaError.extend({
-    code: 'already-joined-valhalla-error',
-    message: 'already joined valhalla!'
-});
-
-async function sendVikingToValhalla({ name }) {
-    const [viking, fetchErr] = await errorist.try(() => fetchViking({ name }));
-    if (fetchErr?.is()) {
-       throw fetchErr;
-    }
-
-    const [valhallaViking, sendErr] = await errorist.try(() => sendToValhalla(viking));
-    if (sendErr?.is(AlreadyInValhallaError)) {
-        logger.warning('Viking was already in valhalla!');
-    }
-
-    return valhallaViking;
-};
-
-async function main() {
-    const vikings = [
-        'Lagertha Lodbrok',
-        'Ragnar Lodbrok',
-        'Bjørn Jernside',
-    ];
-
-    const promises = vikings.map((name) => sendVikingToValhalla({ name }));
-
-    const [result, err] = await errorist.try(() => Promise.all(promises));
+class SomeError extends Errorist {
+  constructor(message) {
+    super(message || "some human readable message");
+    this.code = "some-error-code";
+    this.name = "SomeError";
+  }
 }
-```
 
-### But you can also go the standard way:
-
-```javascript
---- someError.js 
+// Alternatively:
 
 const SomeError = Errorist.extend({
-    code: "some-error-code",
-    message: "some human readable message",
+  message: "some human readable message",
+  code: "some-error-code",
+  name: "SomeError"
 })
-
---- index.js
-
-try {
-    throw new SomeError({
-        causes: [new CauseOneError(), new CauseTwoError()]
-    });
-} catch (e) {
-    const errorist = Errorist.wrap(e);
-    
-    errorist.is(SomeError) // true
-    errorist.isCausedBy(SomeError) // false
-    errorist.isCausedBy(CauseOneError) // true
-    errorist.is(CauseOneError) // true
-    errorist.is(CauseTwoError) // true
-}
 ```
-
-
-### Patching errors with context data
+### #2: Throwing a custom error
 
 ```javascript
-const data = { ... }; /* some useful data that would help debugging */;
 try {
-    // some error is thrown!
-} catch (e) {
-    throw Errorist.wrap(e).with(data);
+  // ...
+} catch(e) {
+  throw SomeCustomError.create({
+    causes: err,
+    data: {
+      foo: "some data",
+      bar: "some other data"
+    }
+  })
 }
-
 ```
+### #3: Checking for causes
+
+```javascript
+const doSomething = () => {
+  throw SomeError.create({
+    causes: [new CauseOneError(), new CauseTwoError()]
+  });
+};
+
+try {
+  doSomething();
+} catch (e) {
+  const err = Errorist.wrap(e); 
+  
+  err.is(SomeError)             // => SomeError [Errorist]
+  err.isCausedBy(SomeError)     // => null
+  err.isCausedBy(CauseOneError) // => CauseOneError [Errorist]
+  err.is(CauseOneError)         // => CauseOneError [Errorist]
+}
+```
+### #4: Out of the box, Golang style error handling
+```javascript
+const [err, thing] = await errorist.try(createThing);
+if (err?.is(ThingAlreadyCreatedError)) {
+  // ...
+}
+```
+
+## Maintainers ✨
+
+- Antonio Schönmann ([@schonmann](https://github.com/schonmann))
