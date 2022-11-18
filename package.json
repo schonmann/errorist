@@ -1,6 +1,6 @@
 {
   "name": "errorist.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JavaScript library that provides an error implementation with context",
   "main": "src/index.js",
   "repository": "git@github.com:schonmann/errorist.git",
@@ -31,5 +31,10 @@
     "prettier-eslint-cli": "^7.1.0",
     "typescript": "^4.8.4"
   },
-  "keywords": ["error", "comparison", "golang", "exception"]
+  "keywords": [
+    "error",
+    "comparison",
+    "golang",
+    "exception"
+  ]
 }
