@@ -10,7 +10,7 @@
   "scripts": {
     "test": "jest",
     "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
-    "lint": "eslint 'src/**/*.js' --fix",
+    "lint": "eslint 'src/**/*.ts' --fix",
     "format": "prettier-eslint 'server/**/*.{js,json,md}' --write"
   },
   "engines": {
