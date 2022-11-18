@@ -11,7 +11,8 @@
     "test": "jest",
     "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "lint": "eslint 'src/**/*.ts' --fix",
-    "format": "prettier-eslint 'server/**/*.{js,json,md}' --write"
+    "format": "prettier-eslint 'server/**/*.{js,json,md}' --write",
+    "postversion": "git push --follow-tags"
   },
   "engines": {
     "node": ">=15"
