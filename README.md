@@ -1,4 +1,4 @@
-# errorist
+# errorist ![node.js.yml](https://github.com/schonmann/errorist/actions/workflows/node.js.yml/badge.svg)
 A JavaScript library that provides traceable errors ✨🕵️
 
 > The one who encourages and propagates error.
