@@ -1,4 +1,4 @@
-name: CI
+name: Run Package Tests
 on: [push]
 jobs:
   test:
