@@ -12,11 +12,11 @@ The package for `errorist` is available on the public *npm registry*.
 
 * With `yarn`:
 ```
-yarn add errorist
+yarn add errorist-js
 ```
 * With `npm`:
 ```
-npm install --save errorist
+npm install --save errorist-js
 ```
 
 ## Purpose
