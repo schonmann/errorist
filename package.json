@@ -11,7 +11,7 @@
     "test": "jest",
     "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "lint": "eslint 'src/**/*.js' --fix",
-    "format": "prettier-eslint 'server/**/*.{js,json}' --write"
+    "format": "prettier-eslint 'server/**/*.{js,json,md}' --write"
   },
   "engines": {
     "node": ">=15"
