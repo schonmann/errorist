@@ -114,6 +114,10 @@ class Errorist extends Error {
       if (cause instanceof AggregateError) {
         return this.searchCause(errorSearch, cause.errors);
       }
+
+      if (cause.message === errorSearch) {
+        return cause;
+      }
     }
     return null;
   }
