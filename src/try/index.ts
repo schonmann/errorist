@@ -1,22 +1,18 @@
 import Errorist from '../errorist';
 
-export type SwapAndWrapReturnType<R> = [Nullable<Errorist>, Nullable<R>];
+export type ErrorAndResult<R> = [Nullable<Errorist>, Nullable<R>];
 
 export type TryFunction<R> = (...args: any) => R;
 
 export type TryWrapper = <R> (fn : TryFunction<R>) => R extends Promise<infer K>
-  ? Promise<SwapAndWrapReturnType<K>> : SwapAndWrapReturnType<R>;
+  ? Promise<ErrorAndResult<K>> : ErrorAndResult<R>;
 
 const createTryWrapperMethod = (): TryWrapper => {
-  const prepareResult = <R>(
-    result: Nullable<R>,
-    error: Nullable<Error>,
-  ): SwapAndWrapReturnType<R> => (
-      [error ? Errorist.wrap(error) : null, result]
-    );
+  const prepareResult = <R>(result: Nullable<R>, error: Nullable<Error>): ErrorAndResult<R> => (
+    [error ? Errorist.wrap(error) : null, result]
+  );
 
-  const tryAsync = async <R>(fn: TryFunction<R>):
-  Promise<ReturnType<typeof prepareResult>> => {
+  const tryAsync = async <R>(fn: TryFunction<R>): Promise<ReturnType<typeof prepareResult>> => {
     try {
       const result = await fn();
 
