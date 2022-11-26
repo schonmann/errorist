@@ -73,7 +73,7 @@ class Errorist extends Error {
 
     const { data, causes } = params;
 
-    return instance.with(data).withCauses(
+    return instance.withData(data).withCauses(
       ...(Array.isArray(causes) ? causes : [causes]),
     );
   }
@@ -127,7 +127,7 @@ class Errorist extends Error {
     return this.isCausedBy(errorSearch);
   }
 
-  with(data?: Optional<object>): this {
+  withData(data?: Optional<object>): this {
     this.data = {
       ...this.data,
       ...(data || {}),

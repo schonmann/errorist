@@ -192,7 +192,7 @@ describe('Errorist', () => {
     });
   });
 
-  describe('with()', () => {
+  describe('withData()', () => {
     it('should include the keys specified in `data` on the error', () => {
       const SampleError = Errorist.extend({
         defaultParams: {
@@ -207,7 +207,7 @@ describe('Errorist', () => {
       };
 
       try {
-        throw new SampleError().with(data);
+        throw new SampleError().withData(data);
       } catch (e) {
         expect((e as Errorist).data).toStrictEqual(data);
       }
@@ -227,7 +227,7 @@ describe('Errorist', () => {
       };
 
       try {
-        throw new SampleError().with(data).with(data);
+        throw new SampleError().withData(data).withData(data);
       } catch (e: any) {
         expect(e.data).toStrictEqual(data);
       }
