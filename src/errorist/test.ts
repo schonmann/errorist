@@ -39,6 +39,19 @@ describe('Errorist', () => {
     });
   });
 
+  describe('searchCause()', () => {
+    it('should find and return the cause if error search is a string and the message matches accordingly', () => {
+      const errorSearch = 'something failed';
+      const causes = [
+        new Error(errorSearch),
+      ];
+
+      const cause = Errorist.searchCause(errorSearch, causes);
+
+      expect(cause).toStrictEqual(causes[0]);
+    });
+  });
+
   describe('extend()', () => {
     it('should create `SampleError`, extending both `Errorist` and `Error`', () => {
       const SampleError = Errorist.extend({
