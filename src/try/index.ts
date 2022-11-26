@@ -1,9 +1,11 @@
 import Errorist from '../errorist';
-import {
-  SwapAndWrapReturnType,
-  TryFunction,
-  TryWrapper,
-} from '../types';
+
+export type SwapAndWrapReturnType<R> = [Nullable<Errorist>, Nullable<R>];
+
+export type TryFunction<R> = (...args: any) => R;
+
+export type TryWrapper = <R> (fn : TryFunction<R>) => R extends Promise<infer K>
+  ? Promise<SwapAndWrapReturnType<K>> : SwapAndWrapReturnType<R>;
 
 const createTryWrapperMethod = (): TryWrapper => {
   const prepareResult = <R>(

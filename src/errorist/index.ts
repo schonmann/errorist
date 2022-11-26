@@ -1,7 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
 import { EmptySearchError, WrapFalseyValueError } from '../errors';
 import WithErrorNotAllowedError from '../errors/withErrorNotAllowed';
-import type { ErrorSearch } from '../types';
 
 const getNativeErrorCauses = (error?: Error | null): Error[] => {
   if (error instanceof AggregateError) {
@@ -12,6 +11,8 @@ const getNativeErrorCauses = (error?: Error | null): Error[] => {
   }
   return [];
 };
+
+export type ErrorSearch = Type<Error> | string;
 
 export interface CustomErroristCreateParams {
   data?: object,
