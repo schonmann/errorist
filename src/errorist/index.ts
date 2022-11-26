@@ -78,14 +78,24 @@ class Errorist extends Error {
     );
   }
 
-  static wrap(error: Error): Errorist {
+  static wrap(error: unknown): Errorist {
     if (!error) {
       throw new WrapFalseyValueError();
     }
     if (error instanceof Errorist) {
       return error;
     }
-    return new Errorist().withError(error);
+    if (error instanceof Error) {
+      return new Errorist().withError(error);
+    }
+    if (typeof error === 'string' || typeof error === 'number') {
+      const str = error.toString();
+      return new Errorist(str).withCode(str);
+    }
+    if (typeof error === 'object') {
+      return new Errorist().withData(error);
+    }
+    return new Errorist();
   }
 
   static searchCause(errorSearch: ErrorSearch, causes: Error[]): Error | null {
@@ -125,6 +135,11 @@ class Errorist extends Error {
     }
 
     return this.isCausedBy(errorSearch);
+  }
+
+  withCode(code: string) : this {
+    this.code = code;
+    return this;
   }
 
   withData(data?: Optional<object>): this {
