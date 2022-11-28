@@ -33,7 +33,7 @@ describe('Errorist', () => {
 
       try {
         throw SampleError.create({ data });
-      } catch (e: any) {
+      } catch (e: unknown) {
         expect(e.data).toStrictEqual(data);
       }
     });
