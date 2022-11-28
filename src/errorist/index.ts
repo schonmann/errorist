@@ -34,7 +34,7 @@ class Errorist extends Error {
 
   public data: Optional<object> = {};
 
-  public causes: Error[] = [];
+  public causes: Errorist[] = [];
 
   public constructor(message?: string) {
     super(message);
@@ -72,10 +72,12 @@ class Errorist extends Error {
       return instance;
     }
 
-    const { data, causes } = params;
+    const { data, causes: causesParam } = params;
+
+    const causes = Array.isArray(causesParam) ? causesParam : [causesParam];
 
     return instance.withData(data).withCauses(
-      ...(Array.isArray(causes) ? causes : [causes]),
+      ...causes.filter((cause) => cause).map((cause) => Errorist.wrap(cause)),
     );
   }
 
@@ -142,7 +144,7 @@ class Errorist extends Error {
     return this.isCausedBy(errorSearch);
   }
 
-  withCode(code: string) : this {
+  withCode(code: string): this {
     this.code = code;
     return this;
   }
@@ -169,7 +171,7 @@ class Errorist extends Error {
   withCauses(...causes: Optional<Error>[]): this {
     this.causes = [
       ...this.causes,
-      ...causes.filter((cause) => Boolean(cause)) as Error[],
+      ...causes.filter((cause) => Boolean(cause)).map((cause) => Errorist.wrap(cause)),
     ];
 
     return this;
