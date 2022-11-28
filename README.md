@@ -1,9 +1,9 @@
 # errorist ![run-tests.yml](https://github.com/schonmann/errorist/actions/workflows/run-tests.yml/badge.svg)
 A JavaScript library that provides traceable errors ✨🕵️
 
-> The one who encourages and propagates error.
+> One who encourages and propagates error.
 > 
-> [— Collins Dictionary](https://www.collinsdictionary.com/dictionary/english/errorist)
+> [— Wikitionary](https://en.wiktionary.org/wiki/errorist)
 
 [TL;DR: check use cases!](#Usage)
 
